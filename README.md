@@ -1,3 +1,3 @@
-# Panda's first commit
+# Pandas first commit
 
-Welcome to Panda's first commit repository!
+Welcome to Pandas first commit repository!
