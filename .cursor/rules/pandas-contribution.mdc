@@ -1,0 +1,10 @@
+---
+description: Guide pandas open-source contributions using the contribution copilot skill
+alwaysApply: true
+---
+
+When the user is working on a pandas contribution, first read and follow
+`.cursor/skills/pandas-contribution-copilot/SKILL.md`.
+
+Do not select issues automatically. Assume the user has already chosen an issue or change.
+Start by clarifying the change before proposing code edits.
