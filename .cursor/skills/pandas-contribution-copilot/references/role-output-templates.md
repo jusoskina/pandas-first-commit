@@ -87,6 +87,46 @@ pytest <path> -k "<test_name_or_keyword>"
 
 ---
 
+## Checks run report
+
+**When:** End of stage 6 and start of stage 7. **Always show this table explicitly** — do not summarize checks only in prose.
+
+Copy this table and fill every row. Use `PASS`, `FAIL`, `WARN`, `NOT RUN`, or `RECOMMENDED` in the **Result** column.
+
+```markdown
+## Checks run report
+
+| Check | Command | Result | Notes |
+|-------|---------|--------|-------|
+| Targeted pytest | `pytest <path> -k "<keyword>"` | PASS / FAIL / NOT RUN | <e.g. 1 passed in 0.05s> |
+| pre-commit | `pre-commit run --files <files>` | PASS / FAIL / NOT RUN | <hooks passed or failing hook name> |
+| PR readiness checker | `python3 ../scripts/check_pandas_contribution.py --base main` | PASS / FAIL / WARN / NOT RUN | <exit code; contribution type; risk level> |
+| Doc checks (if applicable) | `./ci/code_checks.sh docstrings` etc. | PASS / FAIL / NOT RUN / N/A | |
+
+### Checker summary (if checker ran)
+
+| Item | Value |
+|------|-------|
+| Base branch | <e.g. main / upstream/main> |
+| Changed files | <count> |
+| Contribution type | <e.g. code + tests> |
+| Risk level | <low / medium / high> |
+| Checker failures | <count or 0> |
+| Checker warnings | <count or 0> |
+```
+
+**Result rules:**
+
+- `PASS` — command ran and succeeded (pytest green, pre-commit hooks passed, checker exit 0 with no FAIL rows)
+- `FAIL` — command ran and failed
+- `WARN` — checker or review flagged non-blocking issues (e.g. docs warning)
+- `NOT RUN` — command not executed; explain why in Notes (e.g. no dev build yet)
+- `RECOMMENDED` — command suggested for contributor to run locally; assistant did not run it
+
+**Do not** truncate checker output with `head` or omit the checker row when it was run.
+
+---
+
 ## PR readiness check
 
 **When:** Before opening a PR (stage 7).
@@ -118,6 +158,8 @@ pytest <path> -k "<test_name_or_keyword>"
 
 ### CI / guardrails
 - [ ] Pre-commit command suggested or run
+- [ ] **Checks run report** table shown with pytest, pre-commit, and checker rows
+- [ ] PR readiness checker run from pandas repo after commit (or NOT RUN explained)
 - [ ] Relevant pandas code/doc check suggested where applicable
 - [ ] CI risk summarized
 

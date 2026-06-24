@@ -1,6 +1,6 @@
 # Sample change clarification
 
-**Example only.** Fictional DataFrame error-message contribution. Aligns with [role-output-templates.md](../references/role-output-templates.md).
+**Example from [GH#62682](https://github.com/pandas-dev/pandas/issues/62682).** Aligns with [role-output-templates.md](../references/role-output-templates.md).
 
 ---
 
@@ -8,46 +8,50 @@
 
 ### User problem
 
-When a user calls `DataFrame.some_method()` with incompatible arguments (e.g. an invalid combination of `axis` and another parameter), pandas raises a `ValueError` with a message that does not explain which argument is wrong or what values are expected. New users struggle to fix their code.
+When a user adds a string Arrow array to a DataFrame containing values pyarrow cannot box (e.g. `Categorical`, `DateOffset`), pandas surfaces cryptic pyarrow errors instead of a clear pandas exception.
 
 ### Expected behavior
 
-pandas raises the same exception type (`ValueError`) but with a clear message that:
-
-- Names the problematic argument or combination
-- States what went wrong in plain language
-- Does not change successful-path behavior
+pandas raises a clear `TypeError` at the operation site explaining that the operation is not supported for the dtypes involved.
 
 ### Current behavior
 
-Calling the method with incompatible arguments raises `ValueError` with a generic or misleading message (exact text to be confirmed after inspecting the implementation).
-
 ```python
-# Illustrative reproduction — example only
-df.some_method(axis="columns", other="invalid")  # raises vague ValueError
+import pandas as pd
+import numpy as np
+
+arr = pd.array(["a", np.nan])
+df1 = pd.DataFrame([[pd.Categorical(["test"]), pd.Categorical(["test"])]])
+df2 = pd.DataFrame([[pd.offsets.Minute(3), pd.offsets.Minute(3)]])
+
+arr + df1
+# pyarrow.lib.ArrowInvalid: Could not convert ... Categorical ...
+
+arr + df2
+# pyarrow.lib.ArrowTypeError: No temporal attributes found on object.
 ```
 
 ### Contribution type
 
-error message improvement (+ regression test)
+bug fix (error reporting) + regression test
 
 ### Scope
 
 In scope:
 
-- Clarify the error message at the raise site (exact file TBD after repo inspection)
-- Add one regression test asserting exception type and message
-- Keep change limited to this one error path
+- Catch `ArrowInvalid` / `ArrowTypeError` from `_box_pa` in `_evaluate_op_method`
+- Raise `TypeError` using `_op_method_error_message`
+- Add regression test in `pandas/tests/arithmetic/test_string.py`
+- Reference GH#62682 in commit message
 
 Out of scope:
 
-- Changing method signature or public API
-- Refactoring the method or related helpers
-- Fixing other error messages in the same module
-- Documentation site overhaul (docstring tweak only if the public doc references the old message)
+- Rewriting all `_box_pa` call sites
+- Fixing unrelated string operations
+- Waiting for #61828 merge (noted in issue; standalone test is acceptable)
+- Docs site changes (error message improvement only)
 
 ### Open questions
 
-- Exact file and line of the `raise` statement — **resolve by inspecting local checkout**
-- Is the current exception type definitely `ValueError`, or should it be more specific? — **confirm from source**
-- Is there an existing GitHub issue number to reference in the test comment? — **ask contributor**
+- Should other `_box_pa` callers get the same treatment? — **start with arithmetic path only**
+- Does #61828 add overlapping tests? — **align with maintainer feedback if that PR lands first**

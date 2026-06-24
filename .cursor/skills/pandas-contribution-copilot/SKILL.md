@@ -32,7 +32,7 @@ Read these files for detailed rules and templates. Do not duplicate their conten
 | [change-type-rules.md](references/change-type-rules.md) | Classifying contribution type, tests, docs, risk, PR prefix |
 | [role-output-templates.md](references/role-output-templates.md) | Filling structured outputs (risk, PR package, role summaries) |
 
-**Deterministic checker:** If `scripts/check_pandas_contribution.py` is available, recommend it at stages 6–7 for mechanical PR readiness checks.
+**Deterministic checker:** Run at stage 6–7 from the **pandas repo** after commit. Always show the **Checks run report** table from [role-output-templates.md](references/role-output-templates.md) — never bury checker/pytest/pre-commit results in prose alone.
 
 ## Suitable issue types
 
@@ -60,6 +60,7 @@ Do not recommend or select a new issue unless the user explicitly asks.
 - **Docs-only:** Do not force code tests; suggest docs checks instead.
 - **Inspect first:** Do not propose pandas internals without reading relevant local files.
 - **Honesty:** Do not claim CI or checks passed unless they were run.
+- **Explicit checks table:** At stages 6–7, always output the **Checks run report** table (pytest, pre-commit, checker) with PASS/FAIL/NOT RUN per row.
 - **Scope:** One issue or one clear improvement per branch.
 
 ## Maintainability rules

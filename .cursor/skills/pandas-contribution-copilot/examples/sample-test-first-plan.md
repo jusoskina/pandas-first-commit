@@ -1,6 +1,6 @@
 # Sample test-first plan
 
-**Example only.** Test file path is a placeholder until repo inspection. Aligns with [change-type-rules.md](../references/change-type-rules.md) (error message improvement).
+**Example from [GH#62682](https://github.com/pandas-dev/pandas/issues/62682).** Aligns with [change-type-rules.md](../references/change-type-rules.md) (bug fix + error reporting).
 
 ---
 
@@ -8,53 +8,52 @@
 
 ### Likely test location
 
-`<nearest pandas/tests/.../test_<module>.py after inspection>`
-
-*Placeholder example:* `pandas/tests/frame/test_<something>.py` — replace after `git grep` / `rg` finds existing coverage for `some_method`.
+`pandas/tests/arithmetic/test_string.py`
 
 ### Why this location
 
-Existing tests for `DataFrame.some_method` (or the relevant frame API) should live in the same directory as related frame tests. Adding the regression test next to related cases keeps pandas test organization consistent and makes review easier.
+Existing string addition tests (`test_add`, `test_add_2d`) already cover string dtype arithmetic. The GH#62682 reproduction uses `pd.array(...) + DataFrame(...)`, which fits this module.
 
 ### Test to add or update
 
-Add a new test, e.g. `test_some_method_invalid_args_raises_clear_error`, that:
+Add `test_add_dataframe_with_unboxable_values`:
 
-1. Builds a minimal DataFrame fixture (same shape as the reproduction)
-2. Calls `some_method` with the incompatible arguments from the issue
-3. Asserts `ValueError` is raised
-4. Asserts the message matches an expected pattern using `pytest.raises(..., match=...)`
-
-Example sketch (illustrative — not verified against real pandas API):
+1. Build `arr = pd.array(["a", np.nan])`
+2. Build DataFrames containing `Categorical` and `Minute` offset (from issue repro)
+3. Assert `TypeError` with pandas-style message (not pyarrow error types)
 
 ```python
-def test_some_method_invalid_args_raises_clear_error():
-    df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
-    with pytest.raises(ValueError, match=r"other.*invalid|expected"):
-        df.some_method(axis="columns", other="invalid")
-```
+def test_add_dataframe_with_unboxable_values():
+    # GH#62682
+    pytest.importorskip("pyarrow")
 
-Include a comment with the GitHub issue number when available:
+    invalid1 = pd.Categorical(["test"])
+    invalid2 = pd.offsets.Minute(3)
+    arr = pd.array(["a", np.nan])
+    df1 = pd.DataFrame([[invalid1, invalid1]])
+    df2 = pd.DataFrame([[invalid2, invalid2]])
 
-```python
-# GH-XXXXX
+    msg = "operation 'add' not supported for dtype 'string' with dtype 'object'"
+    with pytest.raises(TypeError, match=msg):
+        arr + df1
+    with pytest.raises(TypeError, match=msg):
+        arr + df2
 ```
 
 ### Targeted command
 
 ```bash
-pytest <nearest pandas/tests/.../test_<module>.py> -k "test_some_method_invalid_args_raises_clear_error"
+pytest pandas/tests/arithmetic/test_string.py::test_add_dataframe_with_unboxable_values -xvs
 ```
 
 ### Expected first result
 
-**Before** the error-message fix: the test should **fail** — either the message does not match `match=`, or the current message is too vague to assert reliably (in that case, tighten `match=` after inspecting the current text).
+**Before** the fix: test fails — pyarrow `ArrowInvalid` / `ArrowTypeError` escapes instead of pandas `TypeError`.
 
-**After** the fix: the test should **pass** with the improved message.
+**After** the fix: test **passes** (verified locally: 1 passed in 0.05s).
 
 ### Notes on exception testing
 
-- Use the **most specific** exception type confirmed in source (`ValueError` assumed here — verify).
-- Use `pytest.raises(ValueError, match=r"...")` to check both type and message.
-- Prefer a regex that captures the essential clarity improvement, not the entire string verbatim, unless the message is stable and short.
-- Do not use broad `Exception` or bare `pytest.raises(Exception)`.
+- Assert pandas `TypeError`, not `pa.ArrowInvalid` or `pa.ArrowTypeError`
+- Use `pytest.raises(TypeError, match=...)` for the message
+- `pytest.importorskip("pyarrow")` because string array uses pyarrow backend

@@ -54,7 +54,7 @@ Exit codes:
 
 ### How it supports the copilot Skill
 
-The skill's workflow includes steps 6 (run or recommend local checks) and 7 (PR readiness review). Use this script as a deterministic companion:
+The skill's workflow stages 6–7 require an explicit **Checks run report** table (see `role-output-templates.md`). The assistant must show a row for pytest, pre-commit, and this checker with PASS/FAIL/NOT RUN — not bury results in prose.
 
 1. **After scaffolding** — run the checker to see missing tests, docs warnings, or risky paths
 2. **Before opening a PR** — confirm scope, risk, and suggested commands match the skill's checklist

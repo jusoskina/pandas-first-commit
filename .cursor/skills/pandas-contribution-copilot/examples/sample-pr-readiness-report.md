@@ -1,6 +1,28 @@
 # Sample PR readiness report
 
-**Example only.** Checklist for the fictional error-message + test contribution. Template from [role-output-templates.md](../references/role-output-templates.md).
+**Example from [GH#62682](https://github.com/pandas-dev/pandas/issues/62682).** Template from [role-output-templates.md](../references/role-output-templates.md).
+
+---
+
+## Checks run report
+
+| Check | Command | Result | Notes |
+|-------|---------|--------|-------|
+| Targeted pytest | `pytest pandas/tests/arithmetic/test_string.py::test_add_dataframe_with_unboxable_values -xvs` | PASS | 1 passed in 0.05s |
+| pre-commit | `pre-commit run --files pandas/core/arrays/arrow/array.py pandas/tests/arithmetic/test_string.py` | PASS | All hooks passed |
+| PR readiness checker | `python3 ../scripts/check_pandas_contribution.py --base main` | PASS | exit 0; 1 warning |
+| Doc checks | `./ci/code_checks.sh docstrings` | N/A | Error-path fix |
+
+### Checker summary
+
+| Item | Value |
+|------|-------|
+| Base branch | main |
+| Changed files | 2 |
+| Contribution type | code + tests |
+| Risk level | low |
+| Checker failures | 0 |
+| Checker warnings | 1 (docs optional) |
 
 ---
 
@@ -17,58 +39,59 @@
 - [x] Test added or updated for code behavior change
 - [x] Test is located near related existing tests
 - [x] Targeted pytest command provided
-- [x] Warning/exception behavior tested with category/type and message where relevant
+- [x] Exception type and message tested with `pytest.raises(..., match=...)`
 - [x] No public network dependency in unit tests
 
 ### Docs
 
-- [ ] Docs or docstring updated if user-facing behavior changed — **WARN:** confirm whether docstring mentions the old message; update only if it does
-- [x] Docstring follows pandas / NumPy style where applicable (N/A if docstring untouched)
+- [x] Docs or docstring update not required for internal error-path change
+- [x] N/A — docstring style
 - [x] Examples are minimal and accurate
 
 ### Compatibility
 
-- [x] No public API/signature change, or compatibility risk is explicitly called out
-- [x] Deprecation path included if required (N/A — message-only change)
-- [x] Optional dependency handling follows pandas conventions if relevant (N/A)
+- [x] No public API/signature change
+- [x] Deprecation path N/A
+- [x] Optional dependency handling N/A
 
 ### CI / guardrails
 
-- [ ] Pre-commit command suggested or run — **WARN:** contributor should run locally; not verified in this example
-- [ ] Relevant pandas code/doc check suggested where applicable — **WARN:** run if docstrings touched
-- [x] CI risk summarized (targeted unit tests only; low blast radius)
+- [x] Pre-commit run and passed
+- [x] Checks run report table shown (pytest, pre-commit, checker)
+- [x] Checker run from pandas repo after commit
+- [x] CI risk summarized (targeted unit tests; low blast radius)
 
 ### PR communication
 
-- [x] PR title uses a pandas-style prefix (`CLN` or `BUG`)
-- [ ] PR references the issue if non-trivial — **WARN:** add `GH-XXXXX` when issue number is confirmed
-- [x] PR description explains what changed, why, and how it was tested
+- [x] PR title uses `BUG` prefix
+- [x] PR references GH#62682
+- [x] PR description explains what, why, and how tested
 
 ---
 
 ## Suggested PR title
 
-`CLN: clarify error message for DataFrame.some_method with invalid arguments`
+`BUG: raise clear TypeError when _box_pa fails in arithmetic ops`
 
 ## PR description (abbreviated)
 
 ### What changed
 
-- Improved `ValueError` message when `some_method` receives incompatible arguments
-- Added regression test asserting exception type and message pattern
+- Catch pyarrow boxing errors in `_evaluate_op_method` when `_box_pa` fails
+- Add `test_add_dataframe_with_unboxable_values` for Categorical and DateOffset cases
 
 ### Why
 
-- Users could not tell which argument caused the failure from the old message
+- Fixes GH#62682 — users saw cryptic pyarrow errors instead of pandas `TypeError`
 
 ### Tests
 
-- `pytest <test-file> -k "test_some_method_invalid_args_raises_clear_error"` *(recommended — not run in this example)*
+- `pytest pandas/tests/arithmetic/test_string.py::test_add_dataframe_with_unboxable_values -xvs` — **passed locally**
 
 ### Risk
 
-- Low — message-only change; same exception type; targeted test added
+- Low — error-path only; no API change
 
 ### Notes for reviewers
 
-- Exact raise site and test file determined after local inspection; paths intentionally omitted here
+- Related to #61828; issue author noted possible test overlap after that PR merges

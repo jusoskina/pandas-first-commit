@@ -1,34 +1,32 @@
 # Sample checker output
 
-**Example only.** Illustrative terminal output for `scripts/check_pandas_contribution.py`. This diff was **not** run against a real pandas branch. Format matches [scripts/README.md](../../../../scripts/README.md).
-
----
-
-## Command
+**Example from [GH#62682](https://github.com/pandas-dev/pandas/issues/62682).** Actual output from:
 
 ```bash
-python scripts/check_pandas_contribution.py --base upstream/main
+cd pandas
+python3 ../scripts/check_pandas_contribution.py --base main
 ```
 
-Run from the root of a pandas checkout after committing the error-message fix and test.
+Run after commit `53aa953` on branch `bug-box_pa-clear-errors-62682`. Format matches [scripts/README.md](../../../../scripts/README.md).
 
 ---
 
-## Illustrative output
+## Terminal output
 
 ```text
 ============================================================
 PANDAS PR READINESS CHECK
 ============================================================
-Base branch: upstream/main
+Base branch: main
 Changed files: 2
 
 Changed files by category
 ----------------------------------------
-  Source (1):
-    - pandas/core/frame.py
+  Source (2):
+    - pandas/core/arrays/arrow/array.py
+    - pandas/tests/arithmetic/test_string.py
   Tests (1):
-    - pandas/tests/frame/test_api.py
+    - pandas/tests/arithmetic/test_string.py
   Docs (0):
     (none)
   CI/Config (0):
@@ -51,31 +49,34 @@ Checklist
 
 Suggested commands (not run by this checker)
 ----------------------------------------
-  pytest pandas/tests/frame/test_api.py
+  pytest pandas/tests/arithmetic/test_string.py
   ./ci/code_checks.sh docstrings
   ./ci/code_checks.sh doctests
   ./ci/code_checks.sh code
-  pre-commit run --files pandas/core/frame.py pandas/tests/frame/test_api.py
+  pre-commit run --files pandas/core/arrays/arrow/array.py pandas/tests/arithmetic/test_string.py
 
 Note: This checker does not prove correctness or CI success. Run the suggested commands locally before opening a PR.
 ```
 
 ---
 
-## Notes for demo
+## How this maps to the Checks run report table
+
+| Checker item | Value |
+|--------------|-------|
+| Exit code | `0` |
+| Contribution type | code + tests |
+| Risk level | low |
+| FAIL rows | 0 |
+| WARN rows | 1 (docs optional for error-path fix) |
+
+---
+
+## Demo notes
 
 | Item | Explanation |
 |------|-------------|
-| `pandas/core/frame.py` | **Placeholder** — real path depends on inspection; shown for realistic checker output |
-| `[WARN] docs...` | Heuristic fired because source changed without docs files; docstring update may still be needed |
-| Exit code | Would be `0` (warning only, not `--strict`) |
-| With `--strict` | Would exit `1` only if code changed without tests — here tests are present, so still `0` |
-
-To demo a **code-without-tests** failure:
-
-```bash
-python scripts/check_pandas_contribution.py --base upstream/main --strict
-# Illustrative: [FAIL] Code changed but no pandas/tests file changed.
-```
-
-*(That failure output is hypothetical — run against an actual branch to show real results.)*
+| Run location | Must be inside the **pandas** git repo, not `pandas-first-commit` alone |
+| Requires commit | `git diff main...HEAD` — uncommitted edits are invisible to the checker |
+| `[WARN] docs...` | Heuristic: source changed without docs files; OK for this fix |
+| Pair with table | Always show this output **and** the Checks run report table at stages 6–7 |

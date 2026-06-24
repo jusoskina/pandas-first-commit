@@ -121,15 +121,25 @@ Type-specific rules: [change-type-rules.md](change-type-rules.md).
 
 | | |
 |---|---|
-| **Objective** | Suggest targeted local checks; run them only if environment allows. |
-| **Inputs needed** | List of changed files; contribution type. |
-| **Expected output** | Exact commands with no claim of success unless run. |
+| **Objective** | Run or recommend targeted local checks; report results explicitly. |
+| **Inputs needed** | List of changed files; contribution type; local pandas checkout. |
+| **Expected output** | **Checks run report** table (template in [role-output-templates.md](role-output-templates.md)) plus exact commands for anything not run. |
+| **Stop if** | A required check fails → fix before PR readiness review. |
 
-**Always suggest for code/test changes:**
+**Rule:** Always output the **Checks run report** table. Do not bury checker/pytest/pre-commit results in prose. Do not claim PASS unless the command was actually run and succeeded.
+
+**Always run or recommend for code/test changes:**
 
 ```bash
 pytest <relevant-test-path> -k "<keyword>"
 pre-commit run --files <changed-files>
+```
+
+**Deterministic checker** (run from pandas repo root after committing; path may be `../scripts/check_pandas_contribution.py` in the copilot meta-repo):
+
+```bash
+python3 ../scripts/check_pandas_contribution.py --base upstream/main
+# or: python scripts/check_pandas_contribution.py --base upstream/main
 ```
 
 **Broader readiness (optional):**
@@ -146,11 +156,7 @@ pre-commit run --from-ref=upstream/main --to-ref=HEAD --all-files
 ./ci/code_checks.sh code
 ```
 
-**Deterministic guardrail (if available in repo):**
-
-```bash
-python scripts/check_pandas_contribution.py --base upstream/main
-```
+**Checker prerequisites:** run inside the **pandas git repo**, on a branch with **commits ahead of base**, not from the copilot meta-repo alone.
 
 ---
 
@@ -159,9 +165,15 @@ python scripts/check_pandas_contribution.py --base upstream/main
 | | |
 |---|---|
 | **Objective** | Verify the contribution meets pandas PR expectations before opening. |
-| **Inputs needed** | Final diff scope; check results (if any). |
-| **Expected output** | PR readiness check (template in [role-output-templates.md](role-output-templates.md)). |
+| **Inputs needed** | Final diff scope; **Checks run report** from stage 6; checker output if run. |
+| **Expected output** | PR readiness check (template in [role-output-templates.md](role-output-templates.md)) **immediately after** the checks table. |
 | **Stop if** | Critical checklist items fail → address before PR. |
+
+**Rule:** Stage 7 must include both:
+1. **Checks run report** (repeat or reference stage 6 table — do not omit)
+2. **PR readiness check** checklist
+
+If the checker was not run, say so explicitly in the table (`NOT RUN` + reason).
 
 ---
 

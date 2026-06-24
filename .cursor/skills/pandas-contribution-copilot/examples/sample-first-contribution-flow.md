@@ -1,10 +1,10 @@
 # Sample first contribution flow
 
-**Example only.** Fictional scenario for demo purposes. No code was run; no CI passed.
+**Example based on a real contribution walkthrough** ([GH#62682](https://github.com/pandas-dev/pandas/issues/62682)). Pytest and pre-commit were run locally; checker was run after commit.
 
 ## Scenario
 
-A new contributor chose a small pandas issue: a confusing error message when calling a DataFrame operation with incompatible arguments. Goal: clarify the message and add a regression test.
+A first-time contributor chose [GH#62682](https://github.com/pandas-dev/pandas/issues/62682): pyarrow boxing errors when adding a string array to a DataFrame with Categorical or DateOffset values. Goal: raise a clear pandas `TypeError` and add a regression test.
 
 ---
 
@@ -12,17 +12,17 @@ A new contributor chose a small pandas issue: a confusing error message when cal
 
 **User:**
 
-> I have chosen a pandas issue and want help making a safe first contribution. It's about a confusing DataFrame error message.
+> I'm a first-time pandas contributor. Please walk me through [GH#62682](https://github.com/pandas-dev/pandas/issues/62682). I have a local checkout and want planning plus scaffolding.
 
 **Assistant:**
 
 > I'll follow the pandas contribution copilot workflow. A few intake questions:
 >
 > 1. Is this your first pandas contribution?
-> 2. Can you share the issue link or describe the failing example?
-> 3. What type do you think this is — docs, test, bug fix, error message, or not sure?
+> 2. Can you share the issue link or failing example?
+> 3. What type do you think this is?
 > 4. Do you have a local pandas checkout open?
-> 5. Do you want planning only, or planning plus scaffolding?
+> 5. Planning only, or planning plus scaffolding?
 
 ---
 
@@ -30,15 +30,22 @@ A new contributor chose a small pandas issue: a confusing error message when cal
 
 **User:**
 
-> First contribution. No issue number yet — I reproduced it locally. Calling `df.some_method(wrong_arg)` raises a vague `ValueError`. I think it's an error-message fix. I have pandas cloned. Planning plus scaffolding please.
+> First contribution. Issue link above. Bug fix / error reporting. Pandas cloned in Cursor. Planning plus scaffolding please.
 
-**User (failing example):**
+**Reproduction from the issue:**
 
 ```python
 import pandas as pd
+import numpy as np
 
-df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
-df.some_method(axis="columns", other="invalid")  # vague error today
+invalid1 = pd.Categorical(["test"])
+invalid2 = pd.offsets.Minute(3)
+arr = pd.array(["a", np.nan])
+df1 = pd.DataFrame([[invalid1, invalid1]])
+df2 = pd.DataFrame([[invalid2, invalid2]])
+
+arr + df1  # ArrowInvalid: ... Categorical ...
+arr + df2  # ArrowTypeError: No temporal attributes found on object.
 ```
 
 ---
@@ -47,38 +54,19 @@ df.some_method(axis="columns", other="invalid")  # vague error today
 
 **Assistant output:** See [sample-change-clarification.md](sample-change-clarification.md).
 
-**Assistant (spoken):**
-
-> Before we edit code, I'll restate the change. If this matches your intent, we'll inspect the repo next.
-
 ---
 
-## 4. Assistant proposes context to inspect
+## 4. Assistant inspects local context
 
 **Assistant:**
 
-> I need approved local context before suggesting implementation. I'll search for:
+> I'll inspect approved local context:
 >
-> - The method raising the error (likely in `pandas/core/` — exact path TBD)
-> - Existing tests for this method under `pandas/tests/`
-> - Whether docs mention this error
+> - `git grep "_box_pa" -- pandas/`
+> - `rg "_evaluate_op_method" pandas/core/arrays/arrow/`
+> - `pandas/tests/arithmetic/test_string.py` for string `+` tests
 >
-> Suggested commands:
->
-> ```bash
-> git grep "some_method" -- pandas/
-> rg "some_method" pandas/tests/
-> ```
->
-> Should I inspect these in your checkout?
-
-**User:**
-
-> Yes, go ahead.
-
-**Assistant (after inspection — illustrative):**
-
-> Found implementation near `<pandas/core/...>` and tests in `<pandas/tests/.../test_*.py>`. Ready to plan the test first.
+> **Found:** `_evaluate_op_method` in `pandas/core/arrays/arrow/array.py` calls `self._box_pa(other)` without catching pyarrow boxing failures. String arithmetic tests live in `pandas/tests/arithmetic/test_string.py`.
 
 ---
 
@@ -86,63 +74,64 @@ df.some_method(axis="columns", other="invalid")  # vague error today
 
 **Assistant output:** See [sample-test-first-plan.md](sample-test-first-plan.md).
 
-**Assistant (spoken):**
+---
 
-> We'll add a failing test that asserts the exception type and message before changing the raise statement.
+## 6. Assistant scaffolds the fix
+
+**Branch:** `bug-box_pa-clear-errors-62682`
+
+**Change:** Wrap `_box_pa` in `_evaluate_op_method` and raise `TypeError` via `_op_method_error_message` when pyarrow raises `ArrowInvalid` or `ArrowTypeError`.
+
+**New error (both repro cases):**
+
+```
+TypeError: operation 'add' not supported for dtype 'string' with dtype 'object'
+```
 
 ---
 
-## 6. Assistant suggests implementation constraints
+## 7. Assistant runs checks (stages 6–7)
 
-**Assistant:**
+**Assistant output:**
 
-> **Scaffolding constraints for this change:**
+> ## Checks run report
 >
-> - Keep the same exception type (`ValueError`) unless the issue says otherwise
-> - Improve message clarity only — no signature or behavior change
-> - Match wording style of nearby errors in the same module
-> - Do not refactor surrounding code
-> - Include issue reference in test comment when you have a GitHub issue number
-
----
-
-## 7. Assistant recommends local checks
-
-**Assistant:**
-
-> **Recommended commands** (not run in this example):
+> | Check | Command | Result | Notes |
+> |-------|---------|--------|-------|
+> | Targeted pytest | `pytest pandas/tests/arithmetic/test_string.py::test_add_dataframe_with_unboxable_values -xvs` | PASS | 1 passed in 0.05s |
+> | pre-commit | `pre-commit run --files pandas/core/arrays/arrow/array.py pandas/tests/arithmetic/test_string.py` | PASS | All hooks passed |
+> | PR readiness checker | `python3 ../scripts/check_pandas_contribution.py --base main` | PASS | exit 0; 1 checker warning (docs optional) |
+> | Doc checks | `./ci/code_checks.sh docstrings` | N/A | Error-path fix only |
 >
-> ```bash
-> pytest <nearest-test-file> -k "test_error_message"
-> pre-commit run --files <changed-files>
-> python scripts/check_pandas_contribution.py --base upstream/main
-> ```
+> ### Checker summary
 >
-> I have not run these. Please run locally and share results if you want help interpreting failures.
+> | Item | Value |
+> |------|-------|
+> | Base branch | main |
+> | Changed files | 2 |
+> | Contribution type | code + tests |
+> | Risk level | low |
+> | Checker failures | 0 |
+> | Checker warnings | 1 |
+>
+> Full checker terminal output: [sample-checker-output.md](sample-checker-output.md)
 
 ---
 
 ## 8. Assistant produces PR package and role outputs
 
-**Assistant:**
+**Suggested PR title:** `BUG: raise clear TypeError when _box_pa fails in arithmetic ops`
 
-> **Suggested PR title:** `CLN: clarify error message for DataFrame.some_method with invalid arguments`
->
-> **PR description:** See [sample-pr-readiness-report.md](sample-pr-readiness-report.md) and role outputs in [sample-role-outputs.md](sample-role-outputs.md).
->
-> **Checker output (illustrative):** [sample-checker-output.md](sample-checker-output.md)
+**Outputs:** [sample-pr-readiness-report.md](sample-pr-readiness-report.md), [sample-role-outputs.md](sample-role-outputs.md)
 
 ---
 
 ## 9. Demo closing (assistant)
 
-**Assistant:**
-
-> **Intentionally not automated in this copilot:**
+> **Intentionally not automated:**
 >
 > - No automatic issue selection
-> - No unapproved external context
-> - No claim that CI passed unless you ran checks
+> - No claim that upstream CI passed (only local checks shown)
 > - No replacement for maintainer review
 >
-> Next step: run the suggested pytest and checker commands locally, then open the PR.
+> **Checker reminder:** run from the pandas repo after commit, not from the copilot meta-repo alone.
