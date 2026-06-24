@@ -28,6 +28,29 @@ Approved context boundaries keep suggestions grounded in inspectable, trustworth
 
 ---
 
+## Approved pandas documentation context
+
+Prefer local documentation from the checked-out pandas repository before using external web docs.
+
+Approved local docs:
+- `doc/source/`
+- `doc/source/development/`
+- `doc/source/reference/`
+- `doc/source/user_guide/`
+- `doc/source/getting_started/`
+- `doc/source/whatsnew/`
+- top-level repo files such as:
+  - `CONTRIBUTING.md`
+  - `README.md`
+  - `pyproject.toml`
+  - `environment.yml`
+
+Approved online docs, only if local docs are missing or unavailable:
+- pandas official documentation: `https://pandas.pydata.org/docs/`
+- pandas GitHub repository: `https://github.com/pandas-dev/pandas`
+
+Do not use random blogs, Stack Overflow, unrelated repos, or copied code examples unless the user explicitly approves them.
+
 ## Disallowed context
 
 Do **not** rely on:

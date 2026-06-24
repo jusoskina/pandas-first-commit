@@ -8,3 +8,5 @@ When the user is working on a pandas contribution, first read and follow
 
 Do not select issues automatically. Assume the user has already chosen an issue or change.
 Start by clarifying the change before proposing code edits.
+
+When answering pandas contribution questions, search local repo docs first. Use online docs only to fill gaps or verify current public guidance. If local docs and online docs conflict, say so and prefer the local checkout for implementation decisions.
