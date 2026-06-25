@@ -175,6 +175,10 @@ pre-commit run --from-ref=upstream/main --to-ref=HEAD --all-files
 
 If the checker was not run, say so explicitly in the table (`NOT RUN` + reason).
 
+**Stage 7 success:** No required check has `FAIL` in the checks table, and no critical PR readiness checklist item is unchecked or blocking. `WARN` and explained `NOT RUN` rows do not block success unless the user asks to stop.
+
+**On stage 7 success — continue immediately:** Do not stop after the PR readiness check. In the **same response**, run stages 8 and 9 without waiting for another user prompt. Do not open a PR or push unless the user explicitly asks.
+
 ---
 
 ## Stage 8 — Generate PR package
@@ -184,6 +188,8 @@ If the checker was not run, say so explicitly in the table (`NOT RUN` + reason).
 | **Objective** | Produce title, description, and reviewer notes. |
 | **Inputs needed** | Completed readiness review. |
 | **Expected output** | Suggested PR title and description (template in [role-output-templates.md](role-output-templates.md)). |
+
+**Rule:** Run automatically when stage 7 succeeds. Do not treat stage 7 as the end of the workflow.
 
 ---
 
@@ -197,4 +203,4 @@ If the checker was not run, say so explicitly in the table (`NOT RUN` + reason).
 
 Templates: [role-output-templates.md](role-output-templates.md).
 
-Produce role outputs after a completed plan or PR readiness review.
+**Rule:** Run automatically when stage 7 succeeds — immediately after stage 8 in the same response. Output all four summaries: Engineering, PM, QA, and DevOps. Do not stop after stage 7 or stage 8 alone.

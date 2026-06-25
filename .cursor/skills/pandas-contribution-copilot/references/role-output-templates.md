@@ -131,6 +131,8 @@ Copy this table and fill every row. Use `PASS`, `FAIL`, `WARN`, `NOT RUN`, or `R
 
 **When:** Before opening a PR (stage 7).
 
+**On success:** If no required check has `FAIL` and no critical item below is blocking, continue immediately to stage 8 (PR package) and stage 9 (role summaries) in the same response. Do not wait for another user prompt.
+
 ```markdown
 ## PR readiness check
 
@@ -173,7 +175,7 @@ Copy this table and fill every row. Use `PASS`, `FAIL`, `WARN`, `NOT RUN`, or `R
 
 ## PR title and description
 
-**When:** PR package generation (stage 8).
+**When:** PR package generation (stage 8). Run automatically when stage 7 succeeds — before stage 9 in the same response.
 
 ```markdown
 ## Suggested PR title

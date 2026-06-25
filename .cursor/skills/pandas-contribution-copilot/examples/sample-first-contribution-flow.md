@@ -118,7 +118,9 @@ TypeError: operation 'add' not supported for dtype 'string' with dtype 'object'
 
 ---
 
-## 8. Assistant produces PR package and role outputs
+## 8. Assistant continues automatically to stages 8–9
+
+After a successful stage 7 (checks pass, readiness checklist clear), the assistant **does not stop** — it continues in the same response with the PR package and role handoffs.
 
 **Suggested PR title:** `BUG: raise clear TypeError when _box_pa fails in arithmetic ops`
 

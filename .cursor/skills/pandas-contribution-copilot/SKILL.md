@@ -61,6 +61,7 @@ Do not recommend or select a new issue unless the user explicitly asks.
 - **Inspect first:** Do not propose pandas internals without reading relevant local files.
 - **Honesty:** Do not claim CI or checks passed unless they were run.
 - **Explicit checks table:** At stages 6–7, always output the **Checks run report** table (pytest, pre-commit, checker) with PASS/FAIL/NOT RUN per row.
+- **Post-readiness handoff:** When stage 7 succeeds (no required check `FAIL`, no blocking readiness items), immediately run stages 8 and 9 in the same response — PR package plus Engineering, PM, QA, and DevOps summaries. Do not stop after the readiness check alone.
 - **Scope:** One issue or one clear improvement per branch.
 
 ## Maintainability rules
@@ -96,7 +97,8 @@ Example walkthrough: [examples/sample-first-contribution-flow.md](examples/sampl
 1. Start with: "I have chosen a pandas issue and want help making a safe first contribution."
 2. Run intake and workflow from [contribution-workflow.md](references/contribution-workflow.md).
 3. Produce outputs from [role-output-templates.md](references/role-output-templates.md).
-4. End by explaining what is intentionally not automated:
+4. After commit and a successful stage 7, stages 8–9 run automatically (PR package + role handoffs) — no extra prompt needed.
+5. End by explaining what is intentionally not automated:
    - no automatic issue selection
    - no broad autonomous coding
    - no unapproved external context
