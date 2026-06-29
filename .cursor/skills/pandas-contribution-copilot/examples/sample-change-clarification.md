@@ -1,6 +1,6 @@
 # Sample change clarification
 
-**Example from [GH#62682](https://github.com/pandas-dev/pandas/issues/62682).** Aligns with [role-output-templates.md](../references/role-output-templates.md).
+**Example from [GH#62682](https://github.com/pandas-dev/pandas/issues/62682).** Aligns with [role-output-templates.md](../../pandas-contribution-core/references/role-output-templates.md).
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## When to use this reference
 
-Use after intake when classifying the contribution type, planning tests/docs, choosing PR title prefixes, and estimating first-contribution fit. Cross-check with [contribution-workflow.md](contribution-workflow.md) stage 3 (risk) and stage 4 (test-first).
+Use after intake when classifying the contribution type, planning tests/docs, choosing PR title prefixes, and estimating first-contribution fit. Cross-check with `pandas-plan-contribution` (risk + test-first planning).
 
 ---
 

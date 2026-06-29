@@ -16,7 +16,7 @@ A first-time contributor chose [GH#62682](https://github.com/pandas-dev/pandas/i
 
 **Assistant:**
 
-> I'll follow the pandas contribution copilot workflow. A few intake questions:
+> I'll follow the pandas contribution workflow (`/pandas-full`). A few intake questions:
 >
 > 1. Is this your first pandas contribution?
 > 2. Can you share the issue link or failing example?

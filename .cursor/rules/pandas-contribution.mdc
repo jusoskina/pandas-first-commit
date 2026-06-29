@@ -1,12 +1,19 @@
 ---
-description: Guide pandas open-source contributions using the contribution copilot skill
+description: Guide pandas open-source contributions using stage commands and shared core rules
 alwaysApply: true
 ---
 
-When the user is working on a pandas contribution, first read and follow
-`.cursor/skills/pandas-contribution-copilot/SKILL.md`.
+When the user is working on a pandas contribution:
 
-Do not select issues automatically. Assume the user has already chosen an issue or change.
-Start by clarifying the change before proposing code edits.
-
-When answering pandas contribution questions, search local repo docs first. Use online docs only to fill gaps or verify current public guidance. If local docs and online docs conflict, say so and prefer the local checkout for implementation decisions.
+1. Follow global invariants in `.cursor/skills/pandas-contribution-core/SKILL.md`.
+2. Use the matching stage command or skill for the current step — do not run the full workflow unless asked:
+   - `/pandas-start` — intake + clarify change
+   - `/pandas-inspect` — inspect local context
+   - `/pandas-plan` — risk + test-first plan
+   - `/pandas-implement` — scaffold minimal change
+   - `/pandas-verify` — checks + PR readiness (auto-continues to ship on success)
+   - `/pandas-ship` — PR package + role handoffs
+   - `/pandas-full` — full demo flow
+3. Do not select issues automatically. Assume the user has already chosen an issue or change.
+4. Start by clarifying the change before proposing code edits.
+5. Search local repo docs first. Use online docs only to fill gaps. If local and online docs conflict, prefer the local checkout.

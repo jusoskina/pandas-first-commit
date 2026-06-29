@@ -1,6 +1,6 @@
 # Sample test-first plan
 
-**Example from [GH#62682](https://github.com/pandas-dev/pandas/issues/62682).** Aligns with [change-type-rules.md](../references/change-type-rules.md) (bug fix + error reporting).
+**Example from [GH#62682](https://github.com/pandas-dev/pandas/issues/62682).** Aligns with [change-type-rules.md](../../pandas-contribution-core/references/change-type-rules.md) (bug fix + error reporting).
 
 ---
 

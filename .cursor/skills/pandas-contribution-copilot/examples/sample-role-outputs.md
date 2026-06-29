@@ -1,6 +1,6 @@
 # Sample role outputs
 
-**Example from [GH#62682](https://github.com/pandas-dev/pandas/issues/62682).** Templates from [role-output-templates.md](../references/role-output-templates.md).
+**Example from [GH#62682](https://github.com/pandas-dev/pandas/issues/62682).** Templates from [role-output-templates.md](../../pandas-contribution-core/references/role-output-templates.md).
 
 ---
 

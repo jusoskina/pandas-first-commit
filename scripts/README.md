@@ -4,7 +4,9 @@
 
 A lightweight, deterministic PR readiness checker for pandas contributions. It inspects the git diff against a base branch and flags obvious readiness issues before code review.
 
-This script **supports** the [pandas Contribution Copilot](../.cursor/skills/pandas-contribution-copilot/SKILL.md) skill. The skill guides judgment-heavy workflow steps (clarifying the change, test-first planning, scaffolding, multi-role summaries). The checker catches mechanical guardrails the skill recommends but should not rely on model memory for.
+This script **supports** the pandas contribution workflow skills. Stage skill `pandas-verify-contribution` (`/pandas-verify`) guides checks and PR readiness. The checker catches mechanical guardrails the skills recommend but should not rely on model memory for.
+
+**Related skills:** [pandas-contribution-core](../.cursor/skills/pandas-contribution-core/SKILL.md), [pandas-verify-contribution](../.cursor/skills/pandas-verify-contribution/SKILL.md)
 
 ### What it does
 
@@ -52,15 +54,15 @@ Exit codes:
 - `0` — no failures (warnings alone still exit `0` unless `--strict` promotes them)
 - `1` — git/checker error, or one or more `FAIL` results
 
-### How it supports the copilot Skill
+### How it supports the contribution skills
 
-The skill's workflow stages 6–7 require an explicit **Checks run report** table (see `role-output-templates.md`). The assistant must show a row for pytest, pre-commit, and this checker with PASS/FAIL/NOT RUN — not bury results in prose.
+The `pandas-verify-contribution` skill (stages 6–7) requires an explicit **Checks run report** table (see `pandas-contribution-core/references/role-output-templates.md`). The assistant must show a row for pytest, pre-commit, and this checker with PASS/FAIL/NOT RUN — not bury results in prose.
 
 1. **After scaffolding** — run the checker to see missing tests, docs warnings, or risky paths
 2. **Before opening a PR** — confirm scope, risk, and suggested commands match the skill's checklist
 3. **In demos** — show that guardrails are automated while planning stays assistant-guided
 
-The skill should still produce human-readable summaries for Engineering, PM, QA, and DevOps. This script fills in the mechanical checklist portion.
+The verify and ship skills still produce human-readable summaries for Engineering, PM, QA, and DevOps. This script fills in the mechanical checklist portion.
 
 ### Sample output
 
@@ -106,3 +108,4 @@ Suggested commands (not run by this checker)
 
 Note: This checker does not prove correctness or CI success. Run the suggested commands locally before opening a PR.
 ```
+
